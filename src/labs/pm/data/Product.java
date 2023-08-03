@@ -62,7 +62,8 @@ public abstract class Product implements Rateable<Product>{
         this(id,name,price,NO_STAR);
         
     }
-    
+   
+   
    public LocalDate getBestBefore(){
         return LocalDate.now();
     }

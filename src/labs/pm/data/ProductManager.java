@@ -19,8 +19,10 @@ package labs.pm.data;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,6 +34,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -39,8 +43,12 @@ import java.util.function.Predicate;
  */
 public class ProductManager {
 
+    private static final Logger logger = Logger.getLogger(ProductManager.class.getName());
+    private final ResourceBundle config = ResourceBundle.getBundle("labs.pm.data.config");
+    private MessageFormat reviewFormat = new MessageFormat(config.getString("review.data.format"));
+    private MessageFormat productFormat = new MessageFormat(config.getString("product.data.format"));
     private ResourceFormatter formatter;
-    private Map<Product, List<Review>> products ;
+    private Map<Product, List<Review>> products;
     private static final Map<String, ResourceFormatter> formatters
             = Map.of("en-US", new ResourceFormatter(Locale.US),
                     "en-GB", new ResourceFormatter(Locale.UK),
@@ -54,7 +62,7 @@ public class ProductManager {
     }
 
     public ProductManager(String languageTag) {
-        products=new HashMap<>();
+        products = new HashMap<>();
         this.formatter = formatters.getOrDefault(languageTag, formatters.get("en-IN"));
     }
 
@@ -81,17 +89,21 @@ public class ProductManager {
 
         return product;
     }
-    
-    public Map<String,String> getDiscounts(){
+
+    public Map<String, String> getDiscounts() {
 //       products.keySet().stream().collect(Collectors.groupingBy(p->p.getRating().getStars()),
 //               Collectors.collectingAndThen(Collectors.summarizingDouble(),
 //               discount->formatter.currencyFormat.format(discount)));
-       return new HashMap<>();
+        return new HashMap<>();
     }
-   
-    
+
     public Product reviewProduct(int id, Rating rating, String comments) {
-        return reviewProduct(findProduct(id), rating, comments);
+        try {
+            return reviewProduct(findProduct(id), rating, comments);
+        } catch (ProductManagerException ex) {
+            logger.log(Level.INFO, ex.getMessage());
+        }
+        return null;
     }
 
     public Product reviewProduct(Product product, Rating rating, String comments) {
@@ -112,7 +124,7 @@ public class ProductManager {
 
     }
 
-    public Product findProduct(int id) {
+    public Product findProduct(int id) throws ProductManagerException {
 
         //Product product = null;
 //        for (Product pd : this.products.keySet()) {
@@ -125,33 +137,43 @@ public class ProductManager {
                 .stream()
                 .filter(p -> p.getId() == id)
                 .findFirst()
-                .orElseGet(() -> null);
+                .orElseThrow(() -> new ProductManagerException("Product with this id: " + id + " is not Found"));
     }
 
     public void printProductReport(int id) {
-        printProductReport(findProduct(id));
+        try {
+            printProductReport(findProduct(id));
+        } catch (ProductManagerException ex) {
+            logger.log(Level.INFO, ex.getMessage());
+        }
     }
 
     public void printProductReport(Product product) {
         StringBuilder sb = new StringBuilder();
         if (products.containsKey(product)) {
-            product = findProduct(product.getId());
-            sb.append(formatter.formatProduct(product));
-            sb.append("\n");
-            List<Review> reviews = this.products.get(product);
-            Collections.sort(reviews);
-            if (reviews.isEmpty()) {
-                sb.append(formatter.getText("no.reviews"));
+
+            try {
+                product = findProduct(product.getId());
+
+                sb.append(formatter.formatProduct(product));
                 sb.append("\n");
-            } else {
+                List<Review> reviews = this.products.get(product);
+                Collections.sort(reviews);
+                if (reviews.isEmpty()) {
+                    sb.append(formatter.getText("no.reviews"));
+                    sb.append("\n");
+                } else {
 //            for (Review review : reviews) {
 //                sb.append(formatter.formatReview(review));
 //                sb.append("\n");
 //
 //            }
-                reviews.stream()
-                        .forEach(r -> sb.append(formatter.formatReview(r))
-                        .append("\n"));
+                    reviews.stream()
+                            .forEach(r -> sb.append(formatter.formatReview(r))
+                            .append("\n"));
+                }
+            } catch (ProductManagerException ex) {
+                logger.log(Level.INFO, ex.getMessage());
             }
         } else {
             sb.append(formatter.getText("error"))
@@ -181,6 +203,39 @@ public class ProductManager {
 //         }
         }
         System.out.println(sb);
+    }
+
+    public void parseReview(String text) {
+        try {
+            Object[] values = reviewFormat.parse(text);
+            reviewProduct(Integer.parseInt((String) values[0]),
+                    Rateable.convert(Integer.parseInt((String) values[1])),
+                    (String) values[2]);
+        } catch (ParseException ex) {
+            logger.log(Level.WARNING, "Error in parsing Review "+text,ex.getMessage());
+        }catch(NumberFormatException ex){
+            logger.log(Level.WARNING, "Error in parsing Wrong Type Data "+text,ex.getMessage());
+        }
+    }
+    
+    public void parseProduct(String text) {
+        try {
+            Object[] values = productFormat.parse(text);
+            int id=Integer.parseInt((String) values[1]);
+            String name=(String)values[2];
+            BigDecimal price=BigDecimal.valueOf(Double.parseDouble((String)values[3]));
+            Rating rating=Rating.values()[Integer.parseInt((String)values[4])];
+            switch((String)values[0]){
+                case "D" -> createProduct(id,name,price,rating);
+                case "F" -> {
+                    LocalDate bestBefore=LocalDate.parse((String)values[5]);
+                    createProduct(id,name,price,rating,bestBefore);
+                }
+            }
+                    
+        } catch (ParseException |NumberFormatException | DateTimeParseException ex) {
+            logger.log(Level.WARNING, "Error in parsing Review {0}", text);
+        }
     }
 
     private static class ResourceFormatter {

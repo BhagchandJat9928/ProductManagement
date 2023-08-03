@@ -20,7 +20,7 @@ package labs.pm.data;
  *
  * @author bhagc
  */
-public class Review implements Comparable<Review>{
+public  class Review implements Comparable<Review>{
     private String comments;
     private Rating rating;
 
