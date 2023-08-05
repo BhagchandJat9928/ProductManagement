@@ -16,9 +16,14 @@
  */
 package labs.pm.app;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import labs.pm.data.Product;
 import labs.pm.data.ProductManager;
 import labs.pm.data.Rating;
+import labs.pm.data.Review;
 
 /**
  *
@@ -30,51 +35,19 @@ public class Shop {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        ProductManager manager = new ProductManager(Locale.US);
-        manager.parseProduct("D,45,Tea,10.0,0,2013-15-15");
-//        manager.reviewProduct(p1, Rating.ONE_STAR, "Really Nice");
-//        Product p2 = manager.createProduct(46, "Pizza", BigDecimal.valueOf(60.0), Rating.ONE_STAR, LocalDate.of(2023, Month.MARCH, 20));
-//        Product p3 = manager.createProduct(47, "Pizza", BigDecimal.valueOf(40.0), Rating.THREE_STAR, LocalDate.of(2024, Month.MARCH, 15));
-//        manager.reviewProduct(p2, Rating.TWO_STAR, "Nice design");
-        manager.printProductReport(45);
-        manager.parseReview("45,2,Amazing");
-        manager.reviewProduct(45, Rating.TWO_STAR, "Gorgeous");
-        manager.printProductReport(45);
-//        manager.printProductReport(102);
-//        manager.printProductReport(45);
-//        manager.changeLocale("en-IN");
-//        manager.printProductReport(45);
-//        Comparator<Product> ratingFilter = (a, b) -> a.getRating().ordinal() - b.getRating().ordinal();
-//        Comparator<Product> priceFilter = (a, b) -> b.getPrice().compareTo(a.getPrice());
-//        Comparator<Product> dateFilter = (a, b) -> a.getBestBefore().compareTo(b.getBestBefore());
-//        manager.printProducts(r -> r.getBestBefore()
-//                .isAfter(LocalDate.of(2023, Month.MARCH, 30)),
-//                ratingFilter);
-//        manager.printProducts(r -> r.getPrice().
-//                compareTo(BigDecimal.valueOf(11)) > 0,
-//                dateFilter);
+        ProductManager pm = new ProductManager(Locale.US);
+        pm.changeLocale("en-IN");
+        pm.printProductReport(101);
+        pm.createProduct(01, "Tea", BigDecimal.valueOf(10.7), Rating.TWO_STAR);
+        pm.reviewProduct(01, Rating.TWO_STAR, "Looks like Teea but is it");
+        pm.reviewProduct(01, Rating.FOUR_STAR, "Fine Tea");
+        pm.reviewProduct(01, Rating.THREE_STAR, "This is not a Tea");
+        pm.reviewProduct(01, Rating.FIVE_STAR, "Perfect");
+        pm.printProductReport(101);
+        pm.dumpData();
+        Map<Product, List<Review>> list = pm.restoreData();
+        list.forEach((key, value) -> System.out.println(key + " " + value));
 
-//         Product p4=manager.createProduct(47,"Rice", BigDecimal.valueOf(60.0), Rating.ONE_STAR,LocalDate.of(2024, Month.MARCH, 15));
-//         manager.reviewProduct(47, Rating.THREE_STAR, "YOu deserve only two rating");
-//         manager.printProductReport(p4);
-//        Product[] products = {
-//            new Product(),
-//            new Food(45,"Tea",BigDecimal.valueOf(90.9),LocalDate.of(2023,07,27)),
-//            new Drink(45,"Tea",BigDecimal.valueOf(45.9),Rating.FOUR_STAR),
-//            new Product(45,"Tea",BigDecimal.valueOf(55.0),Rating.FIVE_STAR),
-//            new Product(45,"Tea",BigDecimal.valueOf(46.2),Rating.ONE_STAR)
-//        };
-//
-//        
-//        for (Product product : products) {
-//            if(product instanceof Food ){
-//            System.out.println(((Food) (product)).getBestBefore().toString());
-//        }else{
-//            System.out.println(product + " Discount: " + product.getDiscount());
-//            }
-//        }
-//        
-//     System.out.println(products[1].equals(products[2]));
     }
 
 }

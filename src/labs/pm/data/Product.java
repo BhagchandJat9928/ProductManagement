@@ -16,41 +16,42 @@
  */
 package labs.pm.data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import static labs.pm.data.Rating.*;
 
 /**
- *{@code Product} class represents properties and behaviors of
- * product objects int the Product Management System.
+ * {@code Product} class represents properties and behaviors of product objects
+ * int the Product Management System.
  * <br>
  * Each product has an id, name and price
  * <br>
- * Each product can have a discount , calculated based on a 
+ * Each product can have a discount , calculated based on a
  * {@link  DISCOUNT_RATE discount rate}
+ *
  * @version 4.0
  * @author bhagc
  */
-public abstract class Product implements Rateable<Product>{
-    
+public abstract class Product implements Rateable<Product>, Serializable {
+
     /**
-     * A constant that defines a {@link java.math.BigDecimal} value
-     * of the discount rate
+     * A constant that defines a {@link java.math.BigDecimal} value of the
+     * discount rate
      * <br>
      * Discount Rate is 60%
      */
-    public static final BigDecimal DISCOUNT_RATE=BigDecimal.valueOf(.06);
+    public static final BigDecimal DISCOUNT_RATE = BigDecimal.valueOf(.06);
     private final int id;
     private final String name;
-    private final  BigDecimal price;
-    private  Rating rating;
-    
+    private final BigDecimal price;
+    private Rating rating;
 
     Product() {
-        this(0,"NO Product",BigDecimal.ZERO);
+        this(0, "NO Product", BigDecimal.ZERO);
     }
-    
+
     Product(int id, String name, BigDecimal price, Rating rating) {
         this.id = id;
         this.name = name;
@@ -59,15 +60,14 @@ public abstract class Product implements Rateable<Product>{
     }
 
     Product(int id, String name, BigDecimal price) {
-        this(id,name,price,NO_STAR);
-        
+        this(id, name, price, NO_STAR);
+
     }
-   
-   
-   public LocalDate getBestBefore(){
+
+    public LocalDate getBestBefore() {
         return LocalDate.now();
     }
-    
+
     public int getId() {
         return id;
     }
@@ -82,17 +82,17 @@ public abstract class Product implements Rateable<Product>{
 
     @Override
     public Rating getRating() {
-        return rating; 
+        return rating;
     }
 
     /**
-     * Calculates discount based on a product price and 
+     * Calculates discount based on a product price and
      * {@link DISCOUNT_RATE discount rate}
-     * @return a {@link java.math.BigDecimal BigDecimal}
-     * value of the discount
+     *
+     * @return a {@link java.math.BigDecimal BigDecimal} value of the discount
      */
-    public BigDecimal getDiscount(){
-        return price.multiply(DISCOUNT_RATE).setScale(2,RoundingMode.HALF_UP);
+    public BigDecimal getDiscount() {
+        return price.multiply(DISCOUNT_RATE).setScale(2, RoundingMode.HALF_UP);
     }
 
     @Override
@@ -107,21 +107,15 @@ public abstract class Product implements Rateable<Product>{
         if (this == obj) {
             return true;
         }
-       if(obj instanceof Product product){
-            return product.getId()==this.id;
+        if (obj instanceof Product product) {
+            return product.getId() == this.id;
         }
         return false;
     }
-    
-    
 
     @Override
     public String toString() {
         return "Product{" + "id=" + id + ", name=" + name + ", price=" + price + ", rating=" + rating.getStars() + '}';
     }
-
-   
-
-    
 
 }

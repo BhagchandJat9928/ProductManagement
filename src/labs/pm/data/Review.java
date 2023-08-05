@@ -16,16 +16,19 @@
  */
 package labs.pm.data;
 
+import java.io.Serializable;
+
 /**
  *
  * @author bhagc
  */
-public  class Review implements Comparable<Review>{
+public class Review implements Comparable<Review>, Serializable {
+
     private String comments;
     private Rating rating;
 
-    public Review(Rating rating,String comments) {
-        this.rating=rating;
+    public Review(Rating rating, String comments) {
+        this.rating = rating;
         this.comments = comments;
     }
 
@@ -47,16 +50,12 @@ public  class Review implements Comparable<Review>{
 
     @Override
     public int compareTo(Review other) {
-        return other.rating.ordinal()-this.rating.ordinal();
+        return other.rating.ordinal() - this.rating.ordinal();
     }
 
     @Override
     public String toString() {
         return "Review{" + "comments=" + comments + ", rating=" + rating + '}';
     }
-    
-    
-    
-    
-    
+
 }
