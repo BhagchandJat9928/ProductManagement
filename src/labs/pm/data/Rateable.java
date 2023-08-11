@@ -22,6 +22,7 @@ package labs.pm.data;
  * @param <T>
  */
 public interface Rateable<T> {
+   
     public static final Rating DEFAULT_RATING=Rating.NO_STAR;
     
     public abstract T applyRating(Rating rating);
@@ -37,11 +38,6 @@ public interface Rateable<T> {
    public default T applyRating(int stars){
        return applyRating(convert(stars));
    }
-    private int result(){
-        return 1;
-    }
-    
-   public static void find(){
-        System.out.println("find");
-    }
+  
+ 
 }
